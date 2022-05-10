@@ -8,6 +8,7 @@
             type="text"
             v-model="question"
             size="80"
+            class="form-control"
             maxlength="120"
             placeholder="question"
           />
@@ -25,12 +26,13 @@
             type="text"
             id="answerInput"
             size="60"
+            class="form-control"
             v-model="currentAnswer"
             placeholder="answer"
             ref="answerInput"
           />
           <button
-            class="btn btn-light"
+            class="btn btn-light mt-3"
             @click="addAnswer()"
             :disabled="currentAnswer === ''"
           >
