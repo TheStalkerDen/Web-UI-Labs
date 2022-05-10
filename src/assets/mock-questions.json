@@ -20,19 +20,24 @@
   },
   {
     "authorLogin": "admin",
-    "id": "4335",
+    "id": "2",
     "createdDate": "Sat May 17 2022 11:46:20 GMT+0300 (Eastern European Summer Time)",
-    "questionText": "Who created this site?",
-    "totalAnswerers": 0,
+    "questionText": "Which framework is the best?",
+    "totalAnswerers": 1,
     "answers": [
       {
-        "id": "245",
-        "answerText": "Denys Yermolenko",
+        "id": "1",
+        "answerText": "React",
         "answerers": []
       },
       {
         "id": "2",
-        "answerText": "Ivan Ivanov",
+        "answerText": "Vue",
+        "answerers": ["admin"]
+      },
+      {
+        "id": "3",
+        "answerText": "Angular",
         "answerers": []
       }
     ]
