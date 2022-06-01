@@ -50,29 +50,4 @@ export default class Question {
   get questionText(): string {
     return this._questionText;
   }
-
-  addVoteToAnswer(answerId: string, answererLogin: string): void {
-    const answer = this.answers[this._getAnswerIndex(answerId)];
-    answer.answerers.push(answererLogin);
-    this.totalAnswerers++;
-  }
-
-  isAlreadyVote(userLogin: string) {
-    return this.answers.some(
-      (answer) =>
-        answer.answerers.findIndex((answerer) => answerer === userLogin) != -1
-    );
-  }
-
-  findVotedAnswerId(userLogin: string): string {
-    for (const answer of this.answers) {
-      const index = answer.answerers.findIndex(
-        (answerer) => answerer === userLogin
-      );
-      if (index != -1) {
-        return answer.id;
-      }
-    }
-    return "";
-  }
 }

@@ -21,7 +21,7 @@
         Only registered users can add new questions and take part in polling
       </div>
     </div>
-    <QuestionList :questions="$store.state.questions.questionList" />
+    <QuestionList />
   </div>
 </template>
 

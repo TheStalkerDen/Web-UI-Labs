@@ -1,6 +1,6 @@
 <template>
   <nav>
-    <template v-if="this.$store.state.currentUser">
+    <template v-if="this.$store.state.user">
       <router-link to="/account">My Account</router-link> |
       <router-link to="/login" v-on:click="this.logout()" replace>
         Logout
@@ -36,22 +36,8 @@ export default defineComponent({
       this.$router.push("/login");
     },
     isAdmin() {
-      return (
-        this.$store.state.currentUser &&
-        this.$store.state.currentUser.login === "admin"
-      );
+      return this.$store.state.user && this.$store.state.user.login === "admin";
     },
-  },
-  beforeMount() {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const users = require("./assets/mock-users.json");
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const questions = require("./assets/mock-questions.json");
-    users.forEach((user: User) => this.$store.commit("ADD_USER", user));
-    questions.forEach((question: QuestionObject) =>
-      this.$store.commit("ADD_QUESTION", question)
-    );
-    this.$store.commit("LOGIN", { login: "admin", password: "admin" });
   },
 });
 </script>

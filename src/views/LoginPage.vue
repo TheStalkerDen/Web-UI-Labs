@@ -66,8 +66,8 @@ export default defineComponent({
   },
   methods: {
     login() {
-      this.$store.commit("LOGIN", this.loginData);
-      if (this.$store.state.currentUser) {
+      this.$store.dispatch("LOGIN", this.loginData);
+      if (this.$store.state.user) {
         this.$router.push("/account");
       }
     },

@@ -47,7 +47,7 @@ export default defineComponent({
 
   async created() {
     axios
-      .get("http://127.0.0.1:8000/api/questions")
+      .get("http://127.0.0.1:8000/api/v1/questions")
       .then((response) => {
         console.log(response.data);
         let questionsData: Array<any> = response.data;

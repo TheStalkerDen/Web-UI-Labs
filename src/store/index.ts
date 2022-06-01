@@ -3,47 +3,79 @@ import Users from "@/cls/model/Users";
 import Questions from "@/cls/model/Questions";
 import User from "@/cls/model/User";
 import { QuestionObject } from "@/cls/model/Question";
+import { HTTP } from "../http";
 
-export default createStore({
+export interface State {
+  user: User | null;
+  accessToken: string;
+  refreshToken: string;
+}
+
+export default createStore<State>({
   state: {
-    users: new Users(),
-    questions: new Questions(),
-    currentUser: null,
+    user: null,
+    accessToken: "",
+    refreshToken: "",
   },
   getters: {},
   mutations: {
-    ADD_USER: (state, user) => {
-      state.users.addUser(user);
+    ADD_USER: (state, user: User) => {
+      HTTP.post("/users", {
+        username: user.login,
+        password: user.password,
+      }).then((response) => console.log(response));
     },
-    DELETE_USER: (state, userId) => {
-      state.users.deleteUser(userId);
+    DELETE_USER: (state, username) => {
+      HTTP.delete(`/users/${username}`, {
+        headers: {
+          Authorization: `Bearer ${state.accessToken}`,
+        },
+      }).then((response) => console.log(response));
     },
     ADD_QUESTION: (state, question) => {
-      state.questions.addQuestion(question);
+      HTTP.post(`/questions`, question, {
+        headers: {
+          Authorization: `Bearer ${state.accessToken}`,
+        },
+      }).then((response) => console.log(response));
     },
     DELETE_QUESTION: (state, questionId) => {
-      state.questions.deleteQuestion(questionId);
+      HTTP.delete(`/questions/${questionId}`, {
+        headers: {
+          Authorization: `Bearer ${state.accessToken}`,
+        },
+      }).then((response) => console.log(response));
     },
-    LOGIN: (state, loginData) => {
-      const user = state.users.findByLogin(loginData.login);
-      if (!user) {
-        console.log(
-          `User with username '${loginData.login}' is not registered`
-        );
-        return;
-      }
-      if (user.password === loginData.password) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        state.currentUser = user;
-      } else {
-        console.log(
-          `Password for username '${loginData.login}' doesn't match!`
-        );
-      }
+    LOGIN: async (state, loginData) => {
+      const res = await HTTP.post("/token", {
+        username: loginData.login,
+        password: loginData.password,
+      })
+        .then(async (response: any) => {
+          state.accessToken = response.data.access;
+          state.refreshToken = response.data.refresh;
+          console.log(response);
+          await HTTP.get(`/users/${loginData.login}`, {
+            headers: {
+              Authorization: `Bearer ${state.accessToken}`,
+            },
+          }).then((response) => {
+            state.user = new User({
+              id: response.data.id,
+              login: response.data.username,
+              password: loginData.password,
+              birthdate: "",
+            });
+          });
+          console.log("LOGINED");
+        })
+        .catch((error) => console.log(error));
+      console.log("ALL IS OK");
     },
     LOGOUT: (state) => {
-      state.currentUser = null;
+      state.user = null;
+      state.accessToken = "";
+      state.refreshToken = "";
       console.log("Logged out");
     },
   },

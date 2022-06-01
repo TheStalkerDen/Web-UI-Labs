@@ -5,11 +5,11 @@
       <tbody>
         <tr>
           <td>Login</td>
-          <td>{{ currentUser.login }}</td>
+          <td>{{ user.login }}</td>
         </tr>
         <tr>
           <td>Birthdate</td>
-          <td>{{ currentUser.birthdate }}</td>
+          <td>{{ user.birthdate }}</td>
         </tr>
       </tbody>
     </table>
@@ -22,14 +22,14 @@ import { defineComponent } from "vue";
 export default defineComponent({
   name: "AccountPage",
   beforeMount() {
-    if (!this.$store.state.currentUser) {
+    if (!this.$store.state.user) {
       this.$router.push("/login");
     }
-    this.currentUser = this.$store.state.currentUser;
+    this.user = this.$store.state.user;
   },
   data() {
     return {
-      currentUser: null,
+      user: null,
     };
   },
 });

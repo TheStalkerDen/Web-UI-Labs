@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div
-      v-if="!this.$store.state.currentUser"
+      v-if="!this.$store.state.user"
       class="alert alert-warning"
       role="alert"
     >
@@ -22,8 +22,8 @@
                 'list-group-item-success': votedAnswerId === answer.id,
               }"
             >
-              <template v-if="!$store.state.currentUser || isAlreadyVote">
-                {{ answer.answerers.length }} |
+              <template v-if="!$store.state.user || isAlreadyVote">
+                {{ answer.votes }} |
               </template>
               <template v-else>
                 <input
@@ -37,10 +37,10 @@
               {{ answer.answerText }}
             </li>
           </ul>
-          <template v-if="$store.state.currentUser && !isAlreadyVote">
+          <template v-if="$store.state.user && !isAlreadyVote">
             <button class="mt-2 btn btn-primary" @click="vote">Vote</button>
           </template>
-          <template v-else-if="$store.state.currentUser && isAlreadyVote">
+          <template v-else-if="$store.state.user && isAlreadyVote">
             <div class="alert alert-info" role="alert">
               Thank you for you vote!
             </div>
@@ -63,6 +63,22 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import Question from "@/cls/model/Question";
+import { HTTP } from "@/http";
+import Answer from "@/cls/model/Answer";
+
+function getAnswers(responseAnswers: any[]): Answer[] {
+  let answers: Answer[] = [];
+  for (let responseAnswer of responseAnswers) {
+    answers.push(
+      new Answer({
+        id: responseAnswer.id,
+        answerText: responseAnswer.answer_text,
+        votes: responseAnswer.votes,
+      })
+    );
+  }
+  return answers;
+}
 
 export default defineComponent({
   name: "QuestionPage",
@@ -71,36 +87,46 @@ export default defineComponent({
       question: new Question({ authorLogin: "" }),
       pickedAnswerId: "",
       votedAnswerId: "",
+      isAlreadyVote: false,
     };
   },
   computed: {
-    isAlreadyVote(): boolean {
-      const answererLogin = this.$store.state.currentUser.login;
-      return this.question.isAlreadyVote(answererLogin);
-    },
     canDeletePolling(): boolean {
-      if (!this.$store.state.currentUser) {
+      if (!this.$store.state.user) {
         return false;
       }
-      const userLogin = this.$store.state.currentUser.login;
-      return (
-        userLogin === "admin" || userLogin === this.question.totalAnswerers
-      );
+      const userLogin = this.$store.state.user.login;
+      return userLogin === "admin" || userLogin === this.question.authorLogin;
     },
   },
   beforeMount() {
-    this.question = this.$store.state.questions.getQuestion(
-      this.$route.params.questionId as string
+    HTTP.get(`questions/${this.$route.params.questionId as string}`).then(
+      (response) => {
+        this.question = new Question({
+          authorLogin: response.data.author,
+          questionText: response.data.question_text,
+          answers: getAnswers(response.data.answers),
+        });
+        console.log(response);
+      }
     );
-    if (this.$store.state.currentUser) {
-      const userLogin = this.$store.state.currentUser.login;
-      this.votedAnswerId = this.question.findVotedAnswerId(userLogin);
-    }
+
+    // if (this.$store.state.username) {
+    //   const userLogin = this.$store.state.currentUser.login;
+    //   this.votedAnswerId = this.question.findVotedAnswerId(userLogin);
+    // }
   },
   methods: {
-    vote() {
-      const answererLogin = this.$store.state.currentUser.login;
-      this.question.addVoteToAnswer(this.pickedAnswerId, answererLogin);
+    async vote() {
+      await HTTP.patch(
+        `/questions/${this.$route.params.questionId}/answer/${this.pickedAnswerId}/vote`,
+        null,
+        {
+          headers: {
+            Authorization: `Bearer ${this.$store.state.accessToken}`,
+          },
+        }
+      );
       this.votedAnswerId = this.pickedAnswerId;
     },
     deletePolling() {

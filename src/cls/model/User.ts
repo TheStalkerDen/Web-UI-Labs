@@ -1,11 +1,15 @@
 export default class User {
+  id: number;
   login: string;
   password: string;
-  birthdate: string;
+  birthdate = "";
 
   constructor(userObj: User) {
+    this.id = userObj.id;
     this.login = userObj.login;
     this.password = userObj.password;
-    this.birthdate = userObj.birthdate;
+    if (userObj.birthdate != null) {
+      this.birthdate = userObj.birthdate;
+    }
   }
 }

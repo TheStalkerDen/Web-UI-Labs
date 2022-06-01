@@ -16,7 +16,7 @@
         <div class="card-body">
           <ol v-for="answer in answers" :key="answer.id" class="list-group">
             <li class="list-group-item text-start">
-              {{ answer.answerText }}
+              {{ answer.answer_text }}
               <button class="btn-danger" @click="deleteAnswer(answer.id)">
                 X
               </button>
@@ -55,10 +55,10 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import Answer from "@/cls/model/Answer";
+import Answer, { AnswerObj } from "@/cls/model/Answer";
 
-function getAnswerIndex(answers: Answer[], answerId: string): number {
-  return answers.findIndex((answer) => answer.id === answerId);
+function getAnswerIndex(answers: any[], answerId: string): number {
+  return answers.findIndex((answer) => answer.localAnswerId === answerId);
 }
 
 export default defineComponent({
@@ -66,8 +66,9 @@ export default defineComponent({
   data() {
     return {
       question: "",
-      answers: [] as Answer[],
+      answers: [] as any[],
       currentAnswer: "",
+      localAnswerId: 0,
     };
   },
   computed: {
@@ -77,21 +78,21 @@ export default defineComponent({
   },
   methods: {
     addAnswer() {
-      this.answers.push(
-        new Answer({
-          answerText: this.currentAnswer,
-        })
-      );
+      this.answers.push({
+        answer_text: this.currentAnswer,
+        localAnswerId: this.localAnswerId++,
+      });
       this.currentAnswer = "";
     },
     deleteAnswer(answerId: string) {
       this.answers.splice(getAnswerIndex(this.answers, answerId), 1);
     },
     startPolling() {
+      this.answers.forEach((answer) => delete answer["localAnswerId"]);
       this.$store.commit("ADD_QUESTION", {
         questionText: this.question,
         answers: this.answers,
-        authorLogin: this.$store.state.currentUser.login,
+        authorLogin: this.$store.state.user.login,
       });
       this.$router.push("/home");
     },
