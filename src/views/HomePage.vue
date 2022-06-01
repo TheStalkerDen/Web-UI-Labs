@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div v-if="$store.state.currentUser">
+    <div v-if="$store.state.user">
       <router-link
         to="/create-question"
         custom
