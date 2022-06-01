@@ -25,6 +25,11 @@ export default createStore<State>({
         password: user.password,
       }).then((response) => console.log(response));
     },
+    SET_USER_INFO: (state, userInfo) => {
+      state.user = userInfo.user;
+      state.accessToken = userInfo.accessToken;
+      state.refreshToken = userInfo.refreshToken;
+    },
     DELETE_USER: (state, username) => {
       HTTP.delete(`/users/${username}`, {
         headers: {
@@ -46,32 +51,6 @@ export default createStore<State>({
         },
       }).then((response) => console.log(response));
     },
-    LOGIN: async (state, loginData) => {
-      const res = await HTTP.post("/token", {
-        username: loginData.login,
-        password: loginData.password,
-      })
-        .then(async (response: any) => {
-          state.accessToken = response.data.access;
-          state.refreshToken = response.data.refresh;
-          console.log(response);
-          await HTTP.get(`/users/${loginData.login}`, {
-            headers: {
-              Authorization: `Bearer ${state.accessToken}`,
-            },
-          }).then((response) => {
-            state.user = new User({
-              id: response.data.id,
-              login: response.data.username,
-              password: loginData.password,
-              birthdate: "",
-            });
-          });
-          console.log("LOGINED");
-        })
-        .catch((error) => console.log(error));
-      console.log("ALL IS OK");
-    },
     LOGOUT: (state) => {
       state.user = null;
       state.accessToken = "";
@@ -92,8 +71,32 @@ export default createStore<State>({
     DELETE_QUESTION: (context, questionId) => {
       context.commit("DELETE_QUESTION", questionId);
     },
-    LOGIN: (context, user) => {
-      context.commit("LOGIN", user);
+    LOGIN: async (context, loginData) => {
+      try {
+        const responseWithToken = await HTTP.post("/token", {
+          username: loginData.login,
+          password: loginData.password,
+        });
+        const responseWithUser = await HTTP.get(`/users/${loginData.login}`, {
+          headers: {
+            Authorization: `Bearer ${responseWithToken.data.access}`,
+          },
+        });
+        const user = new User({
+          id: responseWithUser.data.id,
+          login: responseWithUser.data.username,
+          password: loginData.password,
+          birthdate: "",
+        });
+        context.commit("SET_USER_INFO", {
+          user: user,
+          accessToken: responseWithToken.data.access,
+          refreshToken: responseWithToken.data.refresh,
+        });
+      } catch (error) {
+        alert(error);
+        console.log(error);
+      }
     },
     LOGOUT: (context) => {
       context.commit("LOGOUT");

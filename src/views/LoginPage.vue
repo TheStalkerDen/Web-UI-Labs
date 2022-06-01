@@ -65,8 +65,8 @@ export default defineComponent({
     },
   },
   methods: {
-    login() {
-      this.$store.dispatch("LOGIN", this.loginData);
+    async login() {
+      await this.$store.dispatch("LOGIN", this.loginData);
       if (this.$store.state.user) {
         this.$router.push("/account");
       }
