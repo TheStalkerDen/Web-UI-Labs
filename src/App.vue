@@ -51,7 +51,7 @@ export default defineComponent({
     questions.forEach((question: QuestionObject) =>
       this.$store.commit("ADD_QUESTION", question)
     );
-    this.$store.commit("LOGIN", { login: "admin", password: "admin" });
+    //this.$store.commit("LOGIN", { login: "admin", password: "admin" });
   },
 });
 </script>
