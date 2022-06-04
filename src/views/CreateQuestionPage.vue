@@ -5,6 +5,7 @@
       <div class="card">
         <div class="card-header">
           <input
+            name="question-text"
             type="text"
             v-model="question"
             size="80"
@@ -17,12 +18,17 @@
           <ol v-for="answer in answers" :key="answer.id" class="list-group">
             <li class="list-group-item text-start">
               {{ answer.answerText }}
-              <button class="btn-danger" @click="deleteAnswer(answer.id)">
+              <button
+                class="btn-danger"
+                :id="`delete-answer-${answer.id}`"
+                @click="deleteAnswer(answer.id)"
+              >
                 X
               </button>
             </li>
           </ol>
           <input
+            name="answer-text"
             type="text"
             id="answerInput"
             size="60"
@@ -32,6 +38,7 @@
             ref="answerInput"
           />
           <button
+            id="addAnswer"
             class="btn btn-light mt-3"
             @click="addAnswer()"
             :disabled="currentAnswer === ''"
@@ -41,6 +48,7 @@
         </div>
         <div class="card-footer">
           <button
+            id="startPolling"
             class="btn btn-primary"
             @click="startPolling()"
             :disabled="!canStartPolling"

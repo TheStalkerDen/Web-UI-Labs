@@ -6,6 +6,7 @@
         :key="question.id"
       >
         <router-link
+          :id="`question-card-${question.id}`"
           :to="{ path: '/questions/' + question.id }"
           class="list-group-item list-group-item-action flex-column align-items-start"
         >

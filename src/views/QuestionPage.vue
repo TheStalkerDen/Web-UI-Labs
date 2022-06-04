@@ -27,6 +27,7 @@
               </template>
               <template v-else>
                 <input
+                  :id="`vote-answer-${answer.id}`"
                   type="radio"
                   name="answerChoose"
                   :value="answer.id"
@@ -38,11 +39,13 @@
             </li>
           </ul>
           <template v-if="$store.state.currentUser && !isAlreadyVote">
-            <button class="mt-2 btn btn-primary" @click="vote">Vote</button>
+            <button id="vote-button" class="mt-2 btn btn-primary" @click="vote">
+              Vote
+            </button>
           </template>
           <template v-else-if="$store.state.currentUser && isAlreadyVote">
             <div class="alert alert-info" role="alert">
-              Thank you for you vote!
+              Thank you for your vote!
             </div>
           </template>
         </div>
@@ -50,6 +53,7 @@
     </div>
     <div>
       <button
+        id="deletePolling"
         v-if="canDeletePolling"
         class="btn btn-danger"
         @click="deletePolling"
