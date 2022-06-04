@@ -1,5 +1,5 @@
 <template>
-  <h1>About web-site{{ $store.state.counter }}</h1>
+  <h1>About web-site</h1>
   <img alt="logo-image" src="../assets/logo.png" class="rounded mb-3" />
   <p>This is a polling web-site created by Yermolenko Denys KV-12mp</p>
   <p>

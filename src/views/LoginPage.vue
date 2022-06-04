@@ -32,6 +32,7 @@
               />
             </div>
             <button
+              id="loginButton"
               class="btn btn-light"
               type="submit"
               @click="login()"

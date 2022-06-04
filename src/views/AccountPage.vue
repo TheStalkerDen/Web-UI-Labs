@@ -22,9 +22,6 @@ import { defineComponent } from "vue";
 export default defineComponent({
   name: "AccountPage",
   beforeMount() {
-    if (!this.$store.state.currentUser) {
-      this.$router.push("/login");
-    }
     this.currentUser = this.$store.state.currentUser;
   },
   data() {

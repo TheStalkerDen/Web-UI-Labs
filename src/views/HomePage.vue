@@ -7,6 +7,7 @@
         v-slot="{ navigate, isActive, isExactActive }"
       >
         <button
+          id="create-question-btn"
           role="link"
           class="btn btn-primary mb-3"
           @click="navigate"
