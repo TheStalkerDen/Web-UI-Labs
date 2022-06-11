@@ -89,11 +89,17 @@ export default defineComponent({
     },
     startPolling() {
       this.answers.forEach((answer) => delete answer["localAnswerId"]);
-      this.$store.commit("ADD_QUESTION", {
+      this.$store.dispatch("ADD_QUESTION", {
         question_text: this.question,
         answers: this.answers,
         author: this.$store.state.user.id,
       });
+      this.$store.state.ws.send(
+        JSON.stringify({
+          type: "added_new_question",
+          message: `added new questions`,
+        })
+      );
       this.$router.push("/home");
     },
   },

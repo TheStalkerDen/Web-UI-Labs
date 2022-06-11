@@ -1,18 +1,22 @@
 <template>
   <nav>
     <template v-if="this.$store.state.user">
-      <router-link to="/account">My Account</router-link> |
+      <router-link to="/account">My Account</router-link>
+      |
       <router-link to="/login" v-on:click="this.logout()" replace>
         Logout
       </router-link>
     </template>
     <template v-else>
-      <router-link to="/login">Login</router-link> |
+      <router-link to="/login">Login</router-link>
+      |
       <router-link to="/register">Register</router-link>
     </template>
-    <router-link to="/home">Home</router-link> |
+    <router-link to="/home">Home</router-link>
+    |
     <template v-if="isAdmin()">
-      <router-link to="/users">Users</router-link> |
+      <router-link to="/users">Users</router-link>
+      |
     </template>
     <router-link to="/about">About</router-link>
   </nav>
@@ -24,6 +28,7 @@ import { defineComponent } from "vue";
 
 import User from "@/cls/model/User";
 import { QuestionObject } from "@/cls/model/Question";
+import { getConfiguredWS } from "@/websocket";
 
 export default defineComponent({
   name: "App",
@@ -38,6 +43,9 @@ export default defineComponent({
     isAdmin() {
       return this.$store.state.user && this.$store.state.user.login === "admin";
     },
+  },
+  beforeMount() {
+    this.$store.state.ws = getConfiguredWS(this.$store);
   },
 });
 </script>

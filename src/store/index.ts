@@ -1,14 +1,24 @@
 import { createStore } from "vuex";
-import Users from "@/cls/model/Users";
-import Questions from "@/cls/model/Questions";
 import User from "@/cls/model/User";
-import { QuestionObject } from "@/cls/model/Question";
-import { HTTP } from "../http";
+import Question, { QuestionObject } from "@/cls/model/Question";
+import { HTTP } from "@/http";
+import { getConfiguredWS } from "@/websocket";
 
 export interface State {
   user: User | null;
   accessToken: string;
   refreshToken: string;
+  questions: Question[];
+  ws: WebSocket | null;
+}
+
+function getTotalAnswers(answers: any[]): number {
+  let total = 0;
+  console.log(answers);
+  for (const answer of answers) {
+    total += (answer as any).votes;
+  }
+  return total;
 }
 
 export default createStore<State>({
@@ -16,6 +26,8 @@ export default createStore<State>({
     user: null,
     accessToken: "",
     refreshToken: "",
+    questions: [],
+    ws: null,
   },
   getters: {},
   mutations: {
@@ -23,7 +35,7 @@ export default createStore<State>({
       HTTP.post("/users", {
         username: user.login,
         password: user.password,
-      }).then((response) => console.log(response));
+      }).then((response: any) => console.log(response));
     },
     SET_USER_INFO: (state, userInfo) => {
       state.user = userInfo.user;
@@ -35,21 +47,10 @@ export default createStore<State>({
         headers: {
           Authorization: `Bearer ${state.accessToken}`,
         },
-      }).then((response) => console.log(response));
+      }).then((response: any) => console.log(response));
     },
-    ADD_QUESTION: (state, question) => {
-      HTTP.post(`/questions`, question, {
-        headers: {
-          Authorization: `Bearer ${state.accessToken}`,
-        },
-      }).then((response) => console.log(response));
-    },
-    DELETE_QUESTION: (state, questionId) => {
-      HTTP.delete(`/questions/${questionId}`, {
-        headers: {
-          Authorization: `Bearer ${state.accessToken}`,
-        },
-      }).then((response) => console.log(response));
+    SET_QUESTIONS: (state, questions) => {
+      state.questions = questions;
     },
     LOGOUT: (state) => {
       state.user = null;
@@ -65,11 +66,27 @@ export default createStore<State>({
     DELETE_USER: (context, userId) => {
       context.commit("DELETE_USER", userId);
     },
-    ADD_QUESTION: (context, question: QuestionObject) => {
-      context.commit("ADD_QUESTION", question);
+    ADD_QUESTION: async (context, question: QuestionObject) => {
+      try {
+        await HTTP.post(`/questions`, question, {
+          headers: {
+            Authorization: `Bearer ${context.state.accessToken}`,
+          },
+        });
+      } catch (error) {
+        console.log(error);
+      }
     },
-    DELETE_QUESTION: (context, questionId) => {
-      context.commit("DELETE_QUESTION", questionId);
+    DELETE_QUESTION: async (context, questionId) => {
+      try {
+        await HTTP.delete(`/questions/${questionId}`, {
+          headers: {
+            Authorization: `Bearer ${context.state.accessToken}`,
+          },
+        });
+      } catch (error) {
+        console.log(error);
+      }
     },
     LOGIN: async (context, loginData) => {
       try {
@@ -100,6 +117,29 @@ export default createStore<State>({
     },
     LOGOUT: (context) => {
       context.commit("LOGOUT");
+    },
+    LOAD_QUESTIONS: async (context) => {
+      try {
+        const questions_resp = await HTTP.get("/questions");
+        console.log(questions_resp.data);
+        const questionsData: Array<any> = questions_resp.data;
+        const questions = [];
+        for (const questionData of questionsData) {
+          const totalAnswers = getTotalAnswers(questionData.answers);
+          const question = new Question({
+            id: questionData.id,
+            authorLogin: questionData.author_username,
+            createdDate: questionData.pub_date,
+            questionText: questionData.question_text,
+            totalAnswerers: totalAnswers,
+          });
+          questions.push(question);
+        }
+        context.commit("SET_QUESTIONS", questions);
+      } catch (error) {
+        alert(error);
+        console.log(error);
+      }
     },
   },
   modules: {},

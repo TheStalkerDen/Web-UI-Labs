@@ -100,8 +100,8 @@ export default defineComponent({
     },
   },
   beforeMount() {
-    HTTP.get(`questions/${this.$route.params.questionId as string}`).then(
-      (response) => {
+    HTTP.get(`questions/${this.$route.params.questionId}`).then(
+      (response: any) => {
         this.question = new Question({
           authorLogin: response.data.author,
           questionText: response.data.question_text,
@@ -129,10 +129,19 @@ export default defineComponent({
       );
       this.votedAnswerId = this.pickedAnswerId;
     },
-    deletePolling() {
+    async deletePolling() {
       if (confirm("Do you really want to delete this polling?")) {
-        this.$store.commit("DELETE_QUESTION", this.question.id);
-        this.$router.push("/home");
+        await this.$store.dispatch(
+          "DELETE_QUESTION",
+          this.$route.params.questionId
+        );
+        this.$store.state.ws.send(
+          JSON.stringify({
+            type: "deleted_question",
+            message: `deleted question`,
+          })
+        );
+        await this.$router.push("/home");
       }
     },
   },
