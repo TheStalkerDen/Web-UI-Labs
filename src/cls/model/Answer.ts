@@ -16,7 +16,7 @@ export default class Answer {
     if (obj.id != null) {
       this.id = obj.id;
     }
-    if ((obj.votes = undefined)) {
+    if (obj.votes != undefined) {
       this.votes = obj.votes;
     }
   }

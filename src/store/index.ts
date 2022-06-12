@@ -2,23 +2,15 @@ import { createStore } from "vuex";
 import User from "@/cls/model/User";
 import Question, { QuestionObject } from "@/cls/model/Question";
 import { HTTP } from "@/http";
-import { getConfiguredWS } from "@/websocket";
+import { getAnswers, getTotalAnswers } from "@/store/utils";
 
 export interface State {
   user: User | null;
   accessToken: string;
   refreshToken: string;
   questions: Question[];
+  currentQuestion: Question | null;
   ws: WebSocket | null;
-}
-
-function getTotalAnswers(answers: any[]): number {
-  let total = 0;
-  console.log(answers);
-  for (const answer of answers) {
-    total += (answer as any).votes;
-  }
-  return total;
 }
 
 export default createStore<State>({
@@ -27,6 +19,7 @@ export default createStore<State>({
     accessToken: "",
     refreshToken: "",
     questions: [],
+    currentQuestion: null,
     ws: null,
   },
   getters: {},
@@ -51,6 +44,16 @@ export default createStore<State>({
     },
     SET_QUESTIONS: (state, questions) => {
       state.questions = questions;
+    },
+    SET_CURRENT_QUESTION: (state, question) => {
+      state.currentQuestion = question;
+    },
+    INCR_VOTES_IN_CURRENT_QUESTION_ANSWER: (state, answerId) => {
+      if (state.currentQuestion != null) {
+        state.currentQuestion.answers[
+          state.currentQuestion.getAnswerIndex(answerId)
+        ].votes++;
+      }
     },
     LOGOUT: (state) => {
       state.user = null;
@@ -140,6 +143,23 @@ export default createStore<State>({
         alert(error);
         console.log(error);
       }
+    },
+    LOAD_QUESTION: async (context, questionId) => {
+      try {
+        const response = await HTTP.get(`questions/${questionId}`);
+        const question = new Question({
+          id: response.data.id,
+          authorLogin: response.data.author,
+          questionText: response.data.question_text,
+          answers: getAnswers(response.data.answers),
+        });
+        context.commit("SET_CURRENT_QUESTION", question);
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    INCR_VOTES_IN_CURRENT_QUESTION_ANSWER: (context, answerId) => {
+      context.commit("INCR_VOTES_IN_CURRENT_QUESTION_ANSWER", answerId);
     },
   },
   modules: {},

@@ -18,7 +18,7 @@ export default class Question {
   answers: Answer[] = [];
   totalAnswerers = 0;
 
-  _getAnswerIndex(answerId: string): number {
+  getAnswerIndex(answerId: string): number {
     return this.answers.findIndex((answer) => answer.id === answerId);
   }
 

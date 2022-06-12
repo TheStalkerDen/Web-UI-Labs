@@ -66,20 +66,6 @@ import Question from "@/cls/model/Question";
 import { HTTP } from "@/http";
 import Answer from "@/cls/model/Answer";
 
-function getAnswers(responseAnswers: any[]): Answer[] {
-  let answers: Answer[] = [];
-  for (let responseAnswer of responseAnswers) {
-    answers.push(
-      new Answer({
-        id: responseAnswer.id,
-        answerText: responseAnswer.answer_text,
-        votes: responseAnswer.votes,
-      })
-    );
-  }
-  return answers;
-}
-
 export default defineComponent({
   name: "QuestionPage",
   data() {
@@ -99,18 +85,24 @@ export default defineComponent({
       return userLogin === "admin" || userLogin === this.question.authorLogin;
     },
   },
-  beforeMount() {
-    HTTP.get(`questions/${this.$route.params.questionId}`).then(
-      (response: any) => {
-        this.question = new Question({
-          authorLogin: response.data.author,
-          questionText: response.data.question_text,
-          answers: getAnswers(response.data.answers),
-        });
-        console.log(response);
+  async beforeMount() {
+    await this.$store.dispatch("LOAD_QUESTION", this.$route.params.questionId);
+    this.question = this.$store.state.currentQuestion;
+    try {
+      if (this.$store.state.user) {
+        const response = await HTTP.get(
+          `/questions/${this.question.id}/is-already-vote`,
+          {
+            headers: {
+              Authorization: `Bearer ${this.$store.state.accessToken}`,
+            },
+          }
+        );
+        this.isAlreadyVote = response.data["is-already-vote"];
       }
-    );
-
+    } catch (error) {
+      console.log(error);
+    }
     // if (this.$store.state.username) {
     //   const userLogin = this.$store.state.currentUser.login;
     //   this.votedAnswerId = this.question.findVotedAnswerId(userLogin);
@@ -118,16 +110,25 @@ export default defineComponent({
   },
   methods: {
     async vote() {
-      await HTTP.patch(
-        `/questions/${this.$route.params.questionId}/answer/${this.pickedAnswerId}/vote`,
-        null,
-        {
-          headers: {
-            Authorization: `Bearer ${this.$store.state.accessToken}`,
-          },
-        }
+      try {
+        await HTTP.patch(
+          `/questions/${this.$route.params.questionId}/answers/${this.pickedAnswerId}/vote`,
+          null,
+          {
+            headers: {
+              Authorization: `Bearer ${this.$store.state.accessToken}`,
+            },
+          }
+        );
+      } catch (error) {
+        console.log(error);
+      }
+      this.$store.dispatch(
+        "INCR_VOTES_IN_CURRENT_QUESTION_ANSWER",
+        this.pickedAnswerId
       );
       this.votedAnswerId = this.pickedAnswerId;
+      this.isAlreadyVote = true;
     },
     async deletePolling() {
       if (confirm("Do you really want to delete this polling?")) {
