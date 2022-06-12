@@ -17,6 +17,8 @@
     <template v-if="isAdmin()">
       <router-link to="/users">Users</router-link>
       |
+      <router-link to="/online-users">Online Users</router-link>
+      |
     </template>
     <router-link to="/about">About</router-link>
   </nav>

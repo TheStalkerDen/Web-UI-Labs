@@ -42,6 +42,21 @@ export function getConfiguredWS(store: Store<State>) {
         }
         break;
       }
+      case "list_of_online_users": {
+        const onlineUsers = data["users"];
+        await store.dispatch("SET_ONLINE_USERS", onlineUsers);
+        break;
+      }
+      case "added_new_user": {
+        const newUser = data["username"];
+        await store.dispatch("ADD_TO_ONLINE_USERS", newUser);
+        break;
+      }
+      case "user_disconnected": {
+        const user = data["username"];
+        await store.dispatch("REMOVE_FROM_ONLINE_USERS", user);
+        break;
+      }
       default:
         console.log(`Unknown event with type ${data["type"]}`);
         break;

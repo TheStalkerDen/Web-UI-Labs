@@ -3,7 +3,6 @@ import User from "@/cls/model/User";
 import Question, { QuestionObject } from "@/cls/model/Question";
 import { HTTP } from "@/http";
 import { getAnswers, getTotalAnswers } from "@/store/utils";
-import { getConfiguredWS } from "@/websocket";
 
 export interface State {
   user: User | null;
@@ -12,6 +11,7 @@ export interface State {
   questions: Question[];
   currentQuestion: Question | null;
   ws: WebSocket | null;
+  onlineUsers: string[];
 }
 
 export default createStore<State>({
@@ -22,6 +22,7 @@ export default createStore<State>({
     questions: [],
     currentQuestion: null,
     ws: null,
+    onlineUsers: [],
   },
   getters: {},
   mutations: {
@@ -77,6 +78,16 @@ export default createStore<State>({
       state.accessToken = "";
       state.refreshToken = "";
       console.log("Logged out");
+    },
+    SET_ONLINE_USERS: (state, onlineUsers) => {
+      state.onlineUsers = onlineUsers.slice();
+    },
+    ADD_TO_ONLINE_USERS: (state, newUser) => {
+      state.onlineUsers.push(newUser);
+    },
+    REMOVE_FROM_ONLINE_USERS: (state, user) => {
+      const index = state.onlineUsers.findIndex((u) => u === user);
+      state.onlineUsers.splice(index, 1);
     },
   },
   actions: {
@@ -181,8 +192,17 @@ export default createStore<State>({
     REMOVE_QUESTION_FROM_LIST: (context, questionID) => {
       context.commit("REMOVE_QUESTION_FROM_LIST", questionID);
     },
-    INCR_TOTAL_VOTES_FOR_QUESTION_IN_LIST: (constext, questionId) => {
-      constext.commit("INCR_TOTAL_VOTES_FOR_QUESTION_IN_LIST", questionId);
+    INCR_TOTAL_VOTES_FOR_QUESTION_IN_LIST: (context, questionId) => {
+      context.commit("INCR_TOTAL_VOTES_FOR_QUESTION_IN_LIST", questionId);
+    },
+    SET_ONLINE_USERS: (context, onlineUsers) => {
+      context.commit("SET_ONLINE_USERS", onlineUsers);
+    },
+    ADD_TO_ONLINE_USERS: (context, newUser) => {
+      context.commit("ADD_TO_ONLINE_USERS", newUser);
+    },
+    REMOVE_FROM_ONLINE_USERS: (context, user) => {
+      context.commit("REMOVE_FROM_ONLINE_USERS", user);
     },
   },
 

@@ -7,6 +7,7 @@ import QuestionPage from "@/views/QuestionPage.vue";
 import UsersPage from "@/views/UsersPage.vue";
 import HomePage from "@/views/HomePage.vue";
 import CreateQuestionPage from "@/views/CreateQuestionPage.vue";
+import OnlineUsersPage from "@/views/OnlineUsersPage.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -52,6 +53,11 @@ const routes: Array<RouteRecordRaw> = [
     path: "/about",
     name: "about",
     component: AboutPage,
+  },
+  {
+    path: "/online-users",
+    name: "online-users",
+    component: OnlineUsersPage,
   },
 ];
 
