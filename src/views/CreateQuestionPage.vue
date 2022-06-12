@@ -87,9 +87,9 @@ export default defineComponent({
     deleteAnswer(answerId: string) {
       this.answers.splice(getAnswerIndex(this.answers, answerId), 1);
     },
-    startPolling() {
+    async startPolling() {
       this.answers.forEach((answer) => delete answer["localAnswerId"]);
-      this.$store.dispatch("ADD_QUESTION", {
+      await this.$store.dispatch("ADD_QUESTION", {
         question_text: this.question,
         answers: this.answers,
         author: this.$store.state.user.id,
@@ -100,7 +100,7 @@ export default defineComponent({
           message: `added new questions`,
         })
       );
-      this.$router.push("/home");
+      await this.$router.push("/home");
     },
   },
 });

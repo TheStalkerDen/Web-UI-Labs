@@ -3,6 +3,7 @@ import User from "@/cls/model/User";
 import Question, { QuestionObject } from "@/cls/model/Question";
 import { HTTP } from "@/http";
 import { getAnswers, getTotalAnswers } from "@/store/utils";
+import { getConfiguredWS } from "@/websocket";
 
 export interface State {
   user: User | null;
@@ -53,6 +54,22 @@ export default createStore<State>({
         state.currentQuestion.answers[
           state.currentQuestion.getAnswerIndex(answerId)
         ].votes++;
+      }
+    },
+    INCR_TOTAL_VOTES_FOR_QUESTION_IN_LIST: (state, questionId) => {
+      const index = state.questions.findIndex(
+        (answer) => answer.id === questionId
+      );
+      if (index != -1) {
+        state.questions[index].totalAnswerers++;
+      }
+    },
+    REMOVE_QUESTION_FROM_LIST: (state, questionId) => {
+      const index = state.questions.findIndex(
+        (answer) => answer.id === questionId
+      );
+      if (index != -1) {
+        state.questions.splice(index, 1);
       }
     },
     LOGOUT: (state) => {
@@ -161,6 +178,13 @@ export default createStore<State>({
     INCR_VOTES_IN_CURRENT_QUESTION_ANSWER: (context, answerId) => {
       context.commit("INCR_VOTES_IN_CURRENT_QUESTION_ANSWER", answerId);
     },
+    REMOVE_QUESTION_FROM_LIST: (context, questionID) => {
+      context.commit("REMOVE_QUESTION_FROM_LIST", questionID);
+    },
+    INCR_TOTAL_VOTES_FOR_QUESTION_IN_LIST: (constext, questionId) => {
+      constext.commit("INCR_TOTAL_VOTES_FOR_QUESTION_IN_LIST", questionId);
+    },
   },
+
   modules: {},
 });

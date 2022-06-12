@@ -120,15 +120,23 @@ export default defineComponent({
             },
           }
         );
+        this.$store.dispatch(
+          "INCR_VOTES_IN_CURRENT_QUESTION_ANSWER",
+          this.pickedAnswerId
+        );
+        this.votedAnswerId = this.pickedAnswerId;
+        this.isAlreadyVote = true;
+        this.$store.state.ws.send(
+          JSON.stringify({
+            type: "vote_for_answer",
+            message: `vote for answer with id ${this.votedAnswerId}`,
+            answerId: this.votedAnswerId,
+            questionId: this.question.id,
+          })
+        );
       } catch (error) {
         console.log(error);
       }
-      this.$store.dispatch(
-        "INCR_VOTES_IN_CURRENT_QUESTION_ANSWER",
-        this.pickedAnswerId
-      );
-      this.votedAnswerId = this.pickedAnswerId;
-      this.isAlreadyVote = true;
     },
     async deletePolling() {
       if (confirm("Do you really want to delete this polling?")) {
@@ -139,7 +147,8 @@ export default defineComponent({
         this.$store.state.ws.send(
           JSON.stringify({
             type: "deleted_question",
-            message: `deleted question`,
+            message: `deleted question with id ${this.question.id}`,
+            questionId: this.question.id,
           })
         );
         await this.$router.push("/home");

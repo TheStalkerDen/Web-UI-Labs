@@ -36,9 +36,11 @@ export default defineComponent({
     return {};
   },
   methods: {
-    logout() {
-      this.$store.dispatch("LOGOUT");
-      this.$router.push("/login");
+    async logout() {
+      await this.$store.dispatch("LOGOUT");
+      this.$store.state.ws.close();
+      this.$store.state.ws = getConfiguredWS(this.$store);
+      await this.$router.push("/login");
     },
     isAdmin() {
       return this.$store.state.user && this.$store.state.user.login === "admin";

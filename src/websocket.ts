@@ -2,7 +2,11 @@ import { Store } from "vuex";
 import { State } from "@/store";
 
 export function getConfiguredWS(store: Store<State>) {
-  const ws = new WebSocket("ws://127.0.0.1:8000/ws");
+  let query = "";
+  if (store.state.accessToken != "") {
+    query = `?token=${store.state.accessToken}`;
+  }
+  const ws = new WebSocket(`ws://127.0.0.1:8000/ws${query}`);
   ws.onopen = function (event) {
     console.log("Successfully connected to the websocket...");
   };
@@ -11,13 +15,33 @@ export function getConfiguredWS(store: Store<State>) {
     const data = JSON.parse(event.data);
     switch (data["type"]) {
       case "added_new_question":
-        console.log("Update questions lists");
+        console.log("Update questions list");
         await store.dispatch("LOAD_QUESTIONS");
         break;
-      case "deleted_question":
-        console.log("Update questions lists");
+      case "deleted_question": {
+        const questionId = data["questionId"];
+        console.log(`Delete question with id=${questionId} from  list`);
         await store.dispatch("LOAD_QUESTIONS");
         break;
+      }
+      case "vote_for_answer": {
+        const questionId = data["questionId"];
+        await store.dispatch(
+          "INCR_TOTAL_VOTES_FOR_QUESTION_IN_LIST",
+          questionId
+        );
+        if (
+          store.state.currentQuestion != null &&
+          store.state.currentQuestion.id == questionId
+        ) {
+          const answerId = data["answerId"];
+          await store.dispatch(
+            "INCR_VOTES_IN_CURRENT_QUESTION_ANSWER",
+            answerId
+          );
+        }
+        break;
+      }
       default:
         console.log(`Unknown event with type ${data["type"]}`);
         break;

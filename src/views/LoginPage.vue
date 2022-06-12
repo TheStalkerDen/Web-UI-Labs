@@ -48,6 +48,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import { getConfiguredWS } from "@/websocket";
 
 export default defineComponent({
   name: "LoginPage",
@@ -68,6 +69,8 @@ export default defineComponent({
     async login() {
       await this.$store.dispatch("LOGIN", this.loginData);
       if (this.$store.state.user) {
+        this.$store.state.ws.close();
+        this.$store.state.ws = getConfiguredWS(this.$store);
         await this.$router.push("/account");
       }
     },
