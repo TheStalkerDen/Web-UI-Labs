@@ -19,6 +19,8 @@
       |
       <router-link to="/online-users">Online Users</router-link>
       |
+      <router-link to="/tasks">Tasks</router-link>
+      |
     </template>
     <router-link to="/about">About</router-link>
   </nav>

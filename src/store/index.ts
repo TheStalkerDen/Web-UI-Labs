@@ -3,6 +3,7 @@ import User from "@/cls/model/User";
 import Question, { QuestionObject } from "@/cls/model/Question";
 import { HTTP } from "@/http";
 import { getAnswers, getTotalAnswers } from "@/store/utils";
+import Task from "@/cls/model/Task";
 
 export interface State {
   user: User | null;
@@ -12,6 +13,7 @@ export interface State {
   currentQuestion: Question | null;
   ws: WebSocket | null;
   onlineUsers: string[];
+  completedTasks: Task[];
 }
 
 export default createStore<State>({
@@ -23,6 +25,7 @@ export default createStore<State>({
     currentQuestion: null,
     ws: null,
     onlineUsers: [],
+    completedTasks: [],
   },
   getters: {},
   mutations: {
@@ -88,6 +91,9 @@ export default createStore<State>({
     REMOVE_FROM_ONLINE_USERS: (state, user) => {
       const index = state.onlineUsers.findIndex((u) => u === user);
       state.onlineUsers.splice(index, 1);
+    },
+    ADD_COMPLETED_TASK: (state, task) => {
+      state.completedTasks.push(task);
     },
   },
   actions: {
@@ -203,6 +209,9 @@ export default createStore<State>({
     },
     REMOVE_FROM_ONLINE_USERS: (context, user) => {
       context.commit("REMOVE_FROM_ONLINE_USERS", user);
+    },
+    ADD_COMPLETED_TASK: (context, task) => {
+      context.commit("ADD_COMPLETED_TASK", task);
     },
   },
 

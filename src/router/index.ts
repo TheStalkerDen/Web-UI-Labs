@@ -8,6 +8,7 @@ import UsersPage from "@/views/UsersPage.vue";
 import HomePage from "@/views/HomePage.vue";
 import CreateQuestionPage from "@/views/CreateQuestionPage.vue";
 import OnlineUsersPage from "@/views/OnlineUsersPage.vue";
+import TasksPage from "@/views/TasksPage.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -58,6 +59,11 @@ const routes: Array<RouteRecordRaw> = [
     path: "/online-users",
     name: "online-users",
     component: OnlineUsersPage,
+  },
+  {
+    path: "/tasks",
+    name: "tasks",
+    component: TasksPage,
   },
 ];
 

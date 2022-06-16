@@ -12,6 +12,7 @@ export interface QuestionObject {
 
 export default class Question {
   id: string = v4();
+
   authorLogin: string;
   createdDate: Date;
   private _questionText = "";

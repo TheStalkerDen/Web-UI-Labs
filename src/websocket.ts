@@ -57,6 +57,12 @@ export function getConfiguredWS(store: Store<State>) {
         await store.dispatch("REMOVE_FROM_ONLINE_USERS", user);
         break;
       }
+      case "completed_task": {
+        console.log("I get completed task!");
+        const taskObj = data["completedTask"];
+        await store.dispatch("ADD_COMPLETED_TASK", taskObj);
+        break;
+      }
       default:
         console.log(`Unknown event with type ${data["type"]}`);
         break;
